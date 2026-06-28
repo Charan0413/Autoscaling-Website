@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
 import Analytics from "./pages/Analytics";
+import Dashboard from "./pages/Dashboard";
 import "./App.css";
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <Link to="/">Home</Link>
             <Link to="/products">Products</Link>
             <Link to="/analytics">Analytics</Link>
+            <Link to="/dashboard"> Dashboard</Link>
           </div>
         </div>
       </nav>
@@ -29,6 +31,7 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetails />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
     </BrowserRouter>

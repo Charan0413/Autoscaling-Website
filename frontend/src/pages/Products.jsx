@@ -1,28 +1,58 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { API_URL } from "../config";
 
 function Products() {
-
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-
-    fetch("http://localhost:3000/products")
-      .then(res => res.json())
-      .then(data => setProducts(data));
-
+    fetch(`${API_URL}/products`)
+      .then((res) => res.json())
+      .then((data) => setProducts(data));
   }, []);
 
   return (
     <div>
 
-      <h1>Products</h1>
+      {/* PAGE TITLE */}
+      <div className="hero">
+        <h1>Our Products 🛍️</h1>
+        <p>
+          Explore the latest electronics available on TechStore
+        </p>
+      </div>
 
-      {products.map(product => (
-        <div key={product.id}>
-          <h3>{product.name}</h3>
-          <p>₹{product.price}</p>
-        </div>
-      ))}
+      {/* PRODUCTS */}
+      <h2 className="section-title">All Products</h2>
+
+      <div className="product-grid">
+        {products.map((product) => (
+          <div className="product-card" key={product.id}>
+
+            <div className="product-image-placeholder">
+              {product.name === "Laptop" && "💻"}
+              {product.name === "Smartphone" && "📱"}
+              {product.name === "Headphones" && "🎧"}
+            </div>
+
+            <h3 className="product-title">
+              {product.name}
+            </h3>
+
+            <p className="product-price">
+              ₹{product.price}
+            </p>
+
+            <Link
+              className="product-link"
+              to={`/products/${product.id}`}
+            >
+              View Details
+            </Link>
+
+          </div>
+        ))}
+      </div>
 
     </div>
   );
