@@ -7,6 +7,7 @@ const app = express();
 
 app.use(cors());
 
+
 let previousPodCount = 2;
 
 const requestCounts = {};
@@ -21,7 +22,7 @@ if (process.env.KUBERNETES_SERVICE_HOST) {
 }
 
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
-
+const customObjectsApi = kc.makeApiClient(k8s.CustomObjectsApi);
 const products = [
   { id: 1, name: "Laptop", price: 65000 },
   { id: 2, name: "Smartphone", price: 25000 },
@@ -54,21 +55,23 @@ app.get("/products/:id", (req, res) => {
 
 });
 
-app.get("/analytics", (req, res) => {
+app.get("/analytics", async (req, res) => {
 
   const podName = os.hostname();
 
-  if (!requestCounts[podName]) {
-    requestCounts[podName] = 0;
-  }
-
-  requestCounts[podName]++;
+  requestCounts[podName] = (requestCounts[podName] || 0) + 1;
 
   let sum = 0;
 
- for (let i = 0; i < 20000000; i++) {
-    sum += Math.sqrt(i);
-}
+  for (let round = 0; round < 5; round++) {
+
+    for (let i = 0; i < 1000000; i++) {
+      sum += Math.sqrt(i);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
   res.json({
     message: "Analytics complete",
     pod: podName
@@ -80,18 +83,78 @@ app.get("/metrics", async (req, res) => {
 
   try {
 
+    // Get backend pods
     const response = await k8sApi.listNamespacedPod("default");
 
-    const pods = response.body.items
-      .filter(
-        pod =>
-          pod.metadata &&
-          pod.metadata.labels &&
-          pod.metadata.labels.app === "techstore-backend"
-      )
-      .map(
-        pod => pod.metadata.name
+    const pods = response.body.items.filter(
+      pod =>
+        pod.metadata &&
+        pod.metadata.labels &&
+        pod.metadata.labels.app === "techstore-backend"
+    );
+
+    // Get CPU metrics
+    const metricsResponse =
+      await customObjectsApi.listNamespacedCustomObject(
+        "metrics.k8s.io",
+        "v1beta1",
+        "default",
+        "pods"
       );
+
+    // Compatible with different client versions
+    const metricItems =
+      metricsResponse.body?.items ||
+      metricsResponse.items ||
+      [];
+
+    const cpuPerPod = {};
+    let totalCpu = 0;
+
+    metricItems.forEach(metric => {
+
+      if (
+        metric.metadata.labels &&
+        metric.metadata.labels.app === "techstore-backend"
+      ) {
+
+        const cpu = metric.containers[0].usage.cpu;
+
+        let milliCpu = 0;
+
+        if (cpu.endsWith("n")) {
+          milliCpu = parseInt(cpu) / 1000000;
+        }
+        else if (cpu.endsWith("u")) {
+          milliCpu = parseInt(cpu) / 1000;
+        }
+        else if (cpu.endsWith("m")) {
+          milliCpu = parseInt(cpu);
+        }
+        else {
+          milliCpu = parseFloat(cpu) * 1000;
+        }
+
+        milliCpu = Number(milliCpu.toFixed(2));
+
+        cpuPerPod[metric.metadata.name] = milliCpu;
+
+        totalCpu += milliCpu;
+
+      }
+
+    });
+    console.dir(metricItems, { depth: null });
+
+    const averageCpu =
+      Object.keys(cpuPerPod).length === 0
+        ? 0
+        : Number(
+            (
+              totalCpu /
+              Object.keys(cpuPerPod).length
+            ).toFixed(2)
+          );
 
     let scalingStatus = "Stable 🟢";
 
@@ -111,8 +174,15 @@ app.get("/metrics", async (req, res) => {
       cpuTarget: 20,
       status: "Healthy 🟢",
       scalingStatus,
-      pods,
-      loadDistribution: requestCounts
+
+      pods: pods.map(p => p.metadata.name),
+
+      loadDistribution: requestCounts,
+
+      cpuPerPod,
+
+      averageCpu
+
     });
 
   }
