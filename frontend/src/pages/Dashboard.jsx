@@ -7,7 +7,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchMetrics = () => {
       fetch(`${API_URL}/metrics`)
-        .then((res) => res.json())x
+        .then((res) => res.json())
         .then((data) => setMetrics(data))
         .catch((err) => console.error(err));
     };
