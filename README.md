@@ -91,11 +91,11 @@ TechStore/
 │   ├── package.json
 │   └── package-lock.json
 │
-├── kubernetes/
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   ├── hpa.yaml
-│   └── metrics-rbac.yaml
+| 
+│────deployment.yaml
+│────service.yaml
+│────hpa.yaml
+│────metrics-rbac.yaml
 │
 └── README.md
 ```
@@ -159,30 +159,6 @@ During testing:
 - Horizontal Pod Autoscaler
 - Metrics Server
 - RBAC for Metrics API
-
----
-
-## Screenshots
-
-### Home Page
-
-(Add Screenshot)
-
-### Products Page
-
-(Add Screenshot)
-
-### Analytics Dashboard
-
-(Add Screenshot)
-
-### Kubernetes Dashboard
-
-(Add Screenshot)
-
-### HPA Scaling
-
-(Add Screenshot)
 
 ---
 
