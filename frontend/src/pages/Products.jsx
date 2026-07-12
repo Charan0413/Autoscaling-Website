@@ -16,23 +16,36 @@ function Products() {
 
       {/* PAGE TITLE */}
       <div className="hero">
-        <h1>Our Products 🛍️</h1>
+
+        <h1>Our Products</h1>
+
         <p>
-          Explore the latest electronics available on TechStore
+          Browse our collection of electronic products available on TechStore.
         </p>
+
       </div>
 
       {/* PRODUCTS */}
-      <h2 className="section-title">All Products</h2>
+
+      <h2 className="section-title">
+        All Products
+      </h2>
 
       <div className="product-grid">
+
         {products.map((product) => (
-          <div className="product-card" key={product.id}>
+
+          <div
+            className="product-card"
+            key={product.id}
+          >
 
             <div className="product-image-placeholder">
+
               {product.name === "Laptop" && "💻"}
               {product.name === "Smartphone" && "📱"}
               {product.name === "Headphones" && "🎧"}
+
             </div>
 
             <h3 className="product-title">
@@ -51,7 +64,9 @@ function Products() {
             </Link>
 
           </div>
+
         ))}
+
       </div>
 
     </div>

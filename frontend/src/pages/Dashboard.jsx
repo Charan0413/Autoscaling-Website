@@ -24,14 +24,13 @@ function Dashboard() {
   }
 
   return (
-    <div>
-      {/* HERO */}
+    <div className="page">
+
       <div className="hero">
-        <h1>Kubernetes Dashboard 🚀</h1>
-        <p>Live Auto Scaling Monitoring</p>
+        <h1>Kubernetes Dashboard</h1>
+        <p>Real-Time Monitoring of Kubernetes Auto Scaling</p>
       </div>
 
-      {/* METRICS */}
       <div className="stats">
 
         <div className="stat-card">
@@ -58,31 +57,54 @@ function Dashboard() {
           <h2 className="status-green">
             {metrics.status}
           </h2>
-          <p>Status</p>
+          <p>Cluster Status</p>
         </div>
 
         <div className="stat-card">
           <h2>
-            {Object.values(metrics.loadDistribution || {})
-              .reduce((a, b) => a + b, 0)}
+            {Object.values(metrics.loadDistribution || {}).reduce(
+              (a, b) => a + b,
+              0
+            )}
           </h2>
           <p>Total Requests</p>
         </div>
 
       </div>
 
-      {/* RUNNING PODS */}
-      <h2 className="section-title">
-        Running Pods
-      </h2>
-
       <div className="card">
-        {metrics.pods && metrics.pods.map((pod) => (
-          <div key={pod} style={{ marginBottom: "10px" }}>
-            🚀 {pod}
-          </div>
-        ))}
+
+        <h2 className="section-title">
+          Running Pods
+        </h2>
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px"
+          }}
+        >
+          {metrics.pods &&
+            metrics.pods.map((pod) => (
+              <div
+                key={pod}
+                style={{
+                  padding: "12px 16px",
+                  background: "#1e293b",
+                  border: "1px solid #334155",
+                  borderRadius: "8px",
+                  color: "#e2e8f0",
+                  fontFamily: "monospace"
+                }}
+              >
+                {pod}
+              </div>
+            ))}
+        </div>
+
       </div>
+
     </div>
   );
 }

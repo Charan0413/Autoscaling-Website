@@ -8,7 +8,7 @@ function ProductDetails() {
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
-   fetch(`${API_URL}/products/${id}`)
+    fetch(`${API_URL}/products/${id}`)
       .then((res) => res.json())
       .then((data) => setProduct(data));
   }, [id]);
@@ -26,8 +26,10 @@ function ProductDetails() {
 
       {/* HERO */}
       <div className="hero">
-        <h1>Product Details 📦</h1>
-        <p>Explore detailed information about the product</p>
+        <h1>Product Details</h1>
+        <p>
+          Explore detailed information about this product.
+        </p>
       </div>
 
       {/* PRODUCT CARD */}
@@ -40,6 +42,7 @@ function ProductDetails() {
         </div>
 
         <div className="details-info">
+
           <h1>{product.name}</h1>
 
           <h2 className="details-price">
@@ -48,15 +51,21 @@ function ProductDetails() {
 
           <p className="details-description">
             High-quality electronic product available exclusively on TechStore.
-            Built for performance and reliability.
+            Built for performance, reliability, and everyday use.
           </p>
 
-          <button>
+          <button className="hero-button">
             Add to Cart
           </button>
 
-          <Link className="back-button" to="/products">
-            ← Back to Products
+          <br />
+          <br />
+
+          <Link
+            className="back-button"
+            to="/products"
+          >
+            Back to Products
           </Link>
 
         </div>

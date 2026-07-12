@@ -16,49 +16,44 @@ function Home() {
 
       {/* HERO SECTION */}
       <div className="hero">
-        <h1>Welcome to TechStore 🚀</h1>
 
-        <p>
-          Kubernetes-Based Auto-Scaling E-Commerce Platform
-        </p>
+        <h1>Welcome to TechStore</h1>
 
-        <Link to="/products" className="hero-button">
+    
+
+        <Link
+          to="/products"
+          className="hero-button"
+        >
           Browse Products
         </Link>
-      </div>
 
-      {/* STATS */}
-      <div className="stats">
-        <div className="stat-card">
-          <h2>50K+</h2>
-          <p>Customers</p>
-        </div>
-
-        <div className="stat-card">
-          <h2>500+</h2>
-          <p>Products</p>
-        </div>
-
-        <div className="stat-card">
-          <h2>24/7</h2>
-          <p>Availability</p>
-        </div>
       </div>
 
       {/* FEATURED PRODUCTS */}
+
       <h2 className="section-title">
         Featured Products
       </h2>
 
       <div className="product-grid">
+
         {products.map((product) => (
-          <div className="product-card" key={product.id}>
+
+          <div
+            className="product-card"
+            key={product.id}
+          >
 
             <div className="product-image-placeholder">
-              {product.name === "Laptop" && "💻"}
-              {product.name === "Smartphone" && "📱"}
-              {product.name === "Headphones" && "🎧"}
-            </div>
+
+  {product.name === "Laptop" && "💻"}
+
+  {product.name === "Smartphone" && "📱"}
+
+  {product.name === "Headphones" && "🎧"}
+
+</div>
 
             <h3 className="product-title">
               {product.name}
@@ -76,7 +71,9 @@ function Home() {
             </Link>
 
           </div>
+
         ))}
+
       </div>
 
     </div>

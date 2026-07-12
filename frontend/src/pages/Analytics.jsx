@@ -47,6 +47,7 @@ function Analytics() {
 
           return updated.slice(-20);
         });
+
       } catch (err) {
         console.log(err);
       }
@@ -57,6 +58,7 @@ function Analytics() {
     const interval = setInterval(fetchMetrics, 2000);
 
     return () => clearInterval(interval);
+
   }, []);
 
   if (!metrics) {
@@ -71,18 +73,14 @@ function Analytics() {
   );
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h1>Kubernetes Auto Scaling Dashboard</h1>
+    <div className="page">
 
-      <div
-        style={{
-          display: "flex",
-          gap: "20px",
-          marginTop: "30px",
-          marginBottom: "30px",
-          flexWrap: "wrap"
-        }}
-      >
+      <h1 className="section-title">
+        Kubernetes Auto Scaling Dashboard
+      </h1>
+
+      <div className="stats">
+
         <div className="stat-card">
           <h2>{metrics.activePods}</h2>
           <p>Active Pods</p>
@@ -102,6 +100,7 @@ function Analytics() {
           <h2>{metrics.scalingStatus}</h2>
           <p>Status</p>
         </div>
+
       </div>
 
       <button
@@ -111,52 +110,90 @@ function Analytics() {
         Run Analytics
       </button>
 
-      <h2 style={{ marginTop: "50px" }}>
-        Average CPU Utilization (%)
-      </h2>
+      <div className="card">
 
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={history}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="time" />
-          <YAxis
-            domain={[0, 100]}
-            unit="%"
-          />
-          <Tooltip formatter={(value) => `${value}%`} />
-          <Line
-            type="monotone"
-            dataKey="cpu"
-            stroke="#2563eb"
-            strokeWidth={3}
-            dot={{ r: 3 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+        <h2 className="section-title">
+          Average CPU Utilization
+        </h2>
 
-      <h2 style={{ marginTop: "50px" }}>
-        CPU Utilization Per Pod (%)
-      </h2>
+        <ResponsiveContainer width="100%" height={320}>
+          <LineChart data={history}>
+            <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
 
-      <ResponsiveContainer width="100%" height={350}>
-        <BarChart data={podData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis
-            domain={[0, 100]}
-            unit="%"
-          />
-          <Tooltip formatter={(value) => `${value}%`} />
-          <Bar
-            dataKey="cpu"
-            fill="#4CAF50"
-            label={{
-              position: "top",
-              formatter: (value) => `${value}%`
-            }}
-          />
-        </BarChart>
-      </ResponsiveContainer>
+            <XAxis
+              dataKey="time"
+              stroke="#CBD5E1"
+            />
+
+            <YAxis
+              domain={[0, 100]}
+              unit="%"
+              stroke="#CBD5E1"
+            />
+
+            <Tooltip
+              formatter={(value) => `${value}%`}
+              contentStyle={{
+                background: "#111827",
+                border: "1px solid #334155",
+                color: "#fff"
+              }}
+            />
+
+            <Line
+              type="monotone"
+              dataKey="cpu"
+              stroke="#3B82F6"
+              strokeWidth={3}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+
+      </div>
+
+      <div className="card" style={{ marginTop: "30px" }}>
+
+        <h2 className="section-title">
+          CPU Utilization Per Pod
+        </h2>
+
+        <ResponsiveContainer width="100%" height={350}>
+          <BarChart data={podData}>
+
+            <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
+
+            <XAxis
+              dataKey="name"
+              stroke="#CBD5E1"
+            />
+
+            <YAxis
+              domain={[0, 100]}
+              unit="%"
+              stroke="#CBD5E1"
+            />
+
+            <Tooltip
+              formatter={(value) => `${value}%`}
+              contentStyle={{
+                background: "#111827",
+                border: "1px solid #334155",
+                color: "#fff"
+              }}
+            />
+
+            <Bar
+              dataKey="cpu"
+              fill="#22C55E"
+              radius={[6, 6, 0, 0]}
+            />
+
+          </BarChart>
+        </ResponsiveContainer>
+
+      </div>
+
     </div>
   );
 }
