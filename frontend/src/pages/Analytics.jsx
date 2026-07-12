@@ -20,7 +20,6 @@ function Analytics() {
   const runAnalytics = async () => {
     try {
       const res = await fetch(`${API_URL}/analytics`);
-
       const data = await res.json();
 
       alert(`Analytics completed on ${data.pod}`);
@@ -42,7 +41,7 @@ function Analytics() {
             ...prev,
             {
               time: new Date().toLocaleTimeString(),
-              cpu: data.averageCpu
+              cpu: data.averageCpuPercent
             }
           ];
 
@@ -64,14 +63,15 @@ function Analytics() {
     return <h2>Loading...</h2>;
   }
 
-  const podData = Object.entries(metrics.cpuPerPod).map(([name, cpu]) => ({
-    name: name.substring(name.length - 6),
-    cpu
-  }));
+  const podData = Object.entries(metrics.cpuPercentPerPod || {}).map(
+    ([name, cpu]) => ({
+      name: name.substring(name.length - 6),
+      cpu
+    })
+  );
 
   return (
     <div style={{ padding: "30px" }}>
-
       <h1>Kubernetes Auto Scaling Dashboard</h1>
 
       <div
@@ -79,7 +79,8 @@ function Analytics() {
           display: "flex",
           gap: "20px",
           marginTop: "30px",
-          marginBottom: "30px"
+          marginBottom: "30px",
+          flexWrap: "wrap"
         }}
       >
         <div className="stat-card">
@@ -88,8 +89,8 @@ function Analytics() {
         </div>
 
         <div className="stat-card">
-          <h2>{metrics.averageCpu} m</h2>
-          <p>Average CPU</p>
+          <h2>{metrics.averageCpuPercent}%</h2>
+          <p>Average CPU Utilization</p>
         </div>
 
         <div className="stat-card">
@@ -99,6 +100,7 @@ function Analytics() {
 
         <div className="stat-card">
           <h2>{metrics.scalingStatus}</h2>
+          <p>Status</p>
         </div>
       </div>
 
@@ -110,41 +112,51 @@ function Analytics() {
       </button>
 
       <h2 style={{ marginTop: "50px" }}>
-        Average CPU Usage
+        Average CPU Utilization (%)
       </h2>
 
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={history}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="time" />
-          <YAxis />
-          <Tooltip />
+          <YAxis
+            domain={[0, 100]}
+            unit="%"
+          />
+          <Tooltip formatter={(value) => `${value}%`} />
           <Line
             type="monotone"
             dataKey="cpu"
-            stroke="#8884d8"
+            stroke="#2563eb"
             strokeWidth={3}
+            dot={{ r: 3 }}
           />
         </LineChart>
       </ResponsiveContainer>
 
       <h2 style={{ marginTop: "50px" }}>
-        CPU Per Pod
+        CPU Utilization Per Pod (%)
       </h2>
 
       <ResponsiveContainer width="100%" height={350}>
         <BarChart data={podData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
+          <YAxis
+            domain={[0, 100]}
+            unit="%"
+          />
+          <Tooltip formatter={(value) => `${value}%`} />
           <Bar
             dataKey="cpu"
-            fill="#82ca9d"
+            fill="#4CAF50"
+            label={{
+              position: "top",
+              formatter: (value) => `${value}%`
+            }}
           />
         </BarChart>
       </ResponsiveContainer>
-
     </div>
   );
 }

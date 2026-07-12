@@ -63,14 +63,13 @@ app.get("/analytics", async (req, res) => {
 
   let sum = 0;
 
-  for (let round = 0; round < 5; round++) {
-
-    for (let i = 0; i < 1000000; i++) {
-      sum += Math.sqrt(i);
+  for (let round = 0; round < 10; round++) {
+    for (let i = 0; i < 5000000; i++) {
+        sum += Math.sqrt(i);
     }
 
     await new Promise(resolve => setTimeout(resolve, 100));
-  }
+}
 
   res.json({
     message: "Analytics complete",
@@ -80,7 +79,6 @@ app.get("/analytics", async (req, res) => {
 });
 
 app.get("/metrics", async (req, res) => {
-
   try {
 
     // Get backend pods
@@ -93,7 +91,7 @@ app.get("/metrics", async (req, res) => {
         pod.metadata.labels.app === "techstore-backend"
     );
 
-    // Get CPU metrics
+    // Get metrics from Metrics Server
     const metricsResponse =
       await customObjectsApi.listNamespacedCustomObject(
         "metrics.k8s.io",
@@ -102,14 +100,15 @@ app.get("/metrics", async (req, res) => {
         "pods"
       );
 
-    // Compatible with different client versions
     const metricItems =
       metricsResponse.body?.items ||
       metricsResponse.items ||
       [];
 
     const cpuPerPod = {};
-    let totalCpu = 0;
+    const cpuPercentPerPod = {};
+
+    let totalCpuMilli = 0;
 
     metricItems.forEach(metric => {
 
@@ -118,43 +117,54 @@ app.get("/metrics", async (req, res) => {
         metric.metadata.labels.app === "techstore-backend"
       ) {
 
-        const cpu = metric.containers[0].usage.cpu;
+        const cpuString = metric.containers[0].usage.cpu;
 
         let milliCpu = 0;
 
-        if (cpu.endsWith("n")) {
-          milliCpu = parseInt(cpu) / 1000000;
+        if (cpuString.endsWith("n")) {
+          milliCpu = parseInt(cpuString) / 1000000;
         }
-        else if (cpu.endsWith("u")) {
-          milliCpu = parseInt(cpu) / 1000;
+        else if (cpuString.endsWith("u")) {
+          milliCpu = parseInt(cpuString) / 1000;
         }
-        else if (cpu.endsWith("m")) {
-          milliCpu = parseInt(cpu);
+        else if (cpuString.endsWith("m")) {
+          milliCpu = parseInt(cpuString);
         }
         else {
-          milliCpu = parseFloat(cpu) * 1000;
+          milliCpu = parseFloat(cpuString) * 1000;
         }
 
         milliCpu = Number(milliCpu.toFixed(2));
 
+        // Store raw millicores (optional)
         cpuPerPod[metric.metadata.name] = milliCpu;
 
-        totalCpu += milliCpu;
+        // CPU Request = 100m
+        const cpuPercent = Number(
+          ((milliCpu / 100) * 100).toFixed(2)
+        );
+
+        cpuPercentPerPod[metric.metadata.name] = cpuPercent;
+
+        totalCpuMilli += milliCpu;
 
       }
 
     });
-    console.dir(metricItems, { depth: null });
 
     const averageCpu =
       Object.keys(cpuPerPod).length === 0
         ? 0
         : Number(
             (
-              totalCpu /
+              totalCpuMilli /
               Object.keys(cpuPerPod).length
             ).toFixed(2)
           );
+
+    const averageCpuPercent = Number(
+      ((averageCpu / 100) * 100).toFixed(2)
+    );
 
     let scalingStatus = "Stable 🟢";
 
@@ -179,10 +189,13 @@ app.get("/metrics", async (req, res) => {
 
       loadDistribution: requestCounts,
 
+      // Raw values (optional)
       cpuPerPod,
+      averageCpu,
 
-      averageCpu
-
+      // Percentage values for frontend
+      cpuPercentPerPod,
+      averageCpuPercent
     });
 
   }
@@ -196,7 +209,6 @@ app.get("/metrics", async (req, res) => {
     });
 
   }
-
 });
 
 app.listen(5000, () => {
