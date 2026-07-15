@@ -1,2 +1,2 @@
 export const API_URL =
-  import.meta.env.VITE_API_URL || "http://127.0.0.1:52396";
+  import.meta.env.VITE_API_URL || "http://127.0.0.1:55049";
