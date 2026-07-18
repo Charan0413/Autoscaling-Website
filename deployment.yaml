@@ -18,9 +18,9 @@ spec:
     spec:
       containers:
       - name: techstore-backend
-        image: techstore-backend:latest
+        image: 128624577275.dkr.ecr.ap-south-1.amazonaws.com/techstore-backend:latest
 
-        imagePullPolicy: Never
+        imagePullPolicy: Always
 
         ports:
         - containerPort: 5000
